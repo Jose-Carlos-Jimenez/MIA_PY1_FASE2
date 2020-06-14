@@ -14,6 +14,7 @@ DISTFILES += \
 HEADERS += \
     FDISK.h \
     MKDISK.h \
+    MKFS.h \
     MOUNT.h \
     REP.h \
     RMDISK.h \

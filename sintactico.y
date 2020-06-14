@@ -15,6 +15,7 @@
 #include <REP.h>
 #include <MOUNT.h>
 #include <UNMOUNT.h>
+#include <MKFS.h>
 #include <QList>
 
 
@@ -33,6 +34,7 @@ FDISK_* fdisk_ = new FDISK_();
 REP_* rep_ = new REP_();
 MOUNT_* mount_ = new MOUNT_();
 UNMOUNT_* unmount_ = new UNMOUNT_();
+MKFS_* mkfs_ = new MKFS_();
 void yyerror(const char *s);
 
 string delimiter="-----------------------------------------------------------------------------------------------------------------------------";
@@ -77,6 +79,33 @@ string delimiter="--------------------------------------------------------------
 %token<STRING> ruta
 %token<STRING> guion
 %token<STRING> mbr
+%token<STRING> mkfs
+%token<STRING> login
+%token<STRING> usr
+%token<STRING> pwd
+%token<STRING> logout
+%token<STRING> mkgrp
+%token<STRING> rmgrp
+%token<STRING> mkusr
+%token<STRING> grp
+%token<STRING> rmusr
+%token<STRING> chmod
+%token<STRING> mkfile
+%token<STRING> cont
+%token<STRING> cat
+%token<STRING> file
+%token<STRING> rem
+%token<STRING> edit
+%token<STRING> ren
+%token<STRING> mkdir
+%token<STRING> cp
+%token<STRING> dest
+%token<STRING> mv
+%token<STRING> find
+%token<STRING> chown_
+%token<STRING> r
+%token<STRING> chgrp
+%token<STRING> pause_
 
 /*----------------------Declaración de producciones------------------------*/
 
@@ -98,6 +127,10 @@ string delimiter="--------------------------------------------------------------
 %type<STRING> REP
 %type<STRING> REPPS
 %type<STRING> REPP
+%type<STRING> MKFS
+%type<STRING> MKFSP
+%type<STRING> MKFSPS
+%type<STRING> PAUSE
 
 /*-------------------------------- Opciones --------------------------------------*/
 
@@ -126,6 +159,8 @@ INSTRUCCION: MKDISK
            | UNMOUNT
            | REP
            | EXEC
+           | MKFS
+           | PAUSE
            | error{}
 ;
 
@@ -210,6 +245,23 @@ REPP: guion path igual ruta {rep_->setPath($4);}
     | guion id igual cadena_esp {rep_->setId($4);}
     | guion name igual mbr {rep_->setName($4);}
     | guion name igual disk {rep_->setName($4);}
+;
+
+MKFS: mkfs MKFSPS {std::cout << delimiter << std::endl; mkfs_ = new MKFS_();}
+;
+
+MKFSPS: MKFSP
+      | MKFSPS MKFSP
+;
+
+MKFSP: guion id igual id
+     | guion id igual cadena_esp
+     | guion type igual id
+     | guion type igual cadena_esp
+;
+
+
+PAUSE:pause_{std::string Entrada; std::cout<<"Modo Pausa..."<<std::endl;std::cin>>Entrada;}
 ;
 %%
 
