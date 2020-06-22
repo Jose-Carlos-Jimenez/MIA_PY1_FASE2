@@ -261,15 +261,12 @@ public:
         switch (type) {
         case P:
             primaryPart(principal);
-            primaryPart(raid);
             break;
         case E:
             extendedPart(principal);
-            extendedPart(raid);
             break;
         case L:
             logicPart(principal);
-            logicPart(raid);
             break;
         case empty:
             printf("El tipo de partición no ha podido ser establecido, operación abortada.\n");
@@ -804,7 +801,7 @@ public:
         }
         else
         {
-            file = fopen(raid_path.c_str(), "rb+");
+            file = fopen(raid_path.c_str(), "r+b");
         }
         MBR _master;
         fseek(file,0,SEEK_SET);
@@ -980,9 +977,6 @@ public:
 
     }
 
-    /**
-     * Método para imprimir el MBR
-    */
     void DebugBinario()
     {
         FILE *file = fopen(path, "rb+");

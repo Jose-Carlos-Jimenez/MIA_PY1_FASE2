@@ -16,7 +16,12 @@
 #include <MOUNT.h>
 #include <UNMOUNT.h>
 #include <MKFS.h>
+#include <LOGIN.h>
+#include <LOGOUT.h>
+#include <MKGRP.h>
+#include <RMGRP.h>
 #include <QList>
+#include <structs.h>
 
 
 
@@ -27,6 +32,8 @@ extern char *yytext;
 extern  int SourceLine;
 extern FILE *yyin;
 extern QList<MOUNT_>* mounted = new QList<MOUNT_>();
+extern bool loged = false;
+Sesion sesion;
 
 MKDISK_* mkdisk_ = new MKDISK_();
 RMDISK_* rmdisk_ = new RMDISK_();
@@ -35,9 +42,13 @@ REP_* rep_ = new REP_();
 MOUNT_* mount_ = new MOUNT_();
 UNMOUNT_* unmount_ = new UNMOUNT_();
 MKFS_* mkfs_ = new MKFS_();
+LOGIN_* login_ = new LOGIN_();
+LOGOUT_* logout_ = new LOGOUT_();
+MKGRP_* mkgrp_ = new MKGRP_();
+RMGRP_* rmgrp_ = new RMGRP_();
 void yyerror(const char *s);
 
-string delimiter="-----------------------------------------------------------------------------------------------------------------------------";
+string delimiter="------------------------------------------------------------------------------------------------------------------------------------------------------";
 
 %}
 /*---------------Declaración de tokens utilizados en el léxico--------------------*/
@@ -84,6 +95,7 @@ string delimiter="--------------------------------------------------------------
 %token<STRING> usr
 %token<STRING> pwd
 %token<STRING> logout
+%token<STRING> fname
 %token<STRING> mkgrp
 %token<STRING> rmgrp
 %token<STRING> mkusr
@@ -93,6 +105,12 @@ string delimiter="--------------------------------------------------------------
 %token<STRING> mkfile
 %token<STRING> cont
 %token<STRING> cat
+%token<STRING> inode
+%token<STRING> journaling
+%token<STRING> block
+%token<STRING> bm_inode
+%token<STRING> bm_block
+%token<STRING> tree
 %token<STRING> file
 %token<STRING> rem
 %token<STRING> edit
@@ -106,6 +124,10 @@ string delimiter="--------------------------------------------------------------
 %token<STRING> r
 %token<STRING> chgrp
 %token<STRING> pause_
+%token<STRING> route
+%token<STRING> sb
+%token<STRING> ls
+%token<STRING> pass
 
 /*----------------------Declaración de producciones------------------------*/
 
@@ -131,6 +153,16 @@ string delimiter="--------------------------------------------------------------
 %type<STRING> MKFSP
 %type<STRING> MKFSPS
 %type<STRING> PAUSE
+%type<STRING> LOGIN
+%type<STRING> LOGINP
+%type<STRING> LOGINPS
+%type<STRING> LOGOUT
+%type<STRING> MKGRP
+%type<STRING> RMGRP
+%type<STRING> MKUSR
+%type<STRING> MKUSRP
+%type<STRING> MKUSRPS
+
 
 /*-------------------------------- Opciones --------------------------------------*/
 
@@ -161,6 +193,10 @@ INSTRUCCION: MKDISK
            | EXEC
            | MKFS
            | PAUSE
+           | LOGIN
+           | LOGOUT
+           | MKGRP
+           | RMGRP
            | error{}
 ;
 
@@ -241,28 +277,86 @@ REPPS: REPP
 
 REPP: guion path igual ruta {rep_->setPath($4);}
     | guion path igual cadena_esp {rep_->setPath($4);}
+    | guion route igual ruta {rep_->setCont($4);}
+    | guion route igual fname {rep_->setCont($4);}
+    | guion route igual id {rep_->setCont($4);}
     | guion id igual id {rep_->setId($4);}
     | guion id igual cadena_esp {rep_->setId($4);}
     | guion name igual mbr {rep_->setName($4);}
+    | guion name igual inode {rep_->setName($4);}
     | guion name igual disk {rep_->setName($4);}
+    | guion name igual journaling {rep_->setName($4);}
+    | guion name igual block {rep_->setName($4);}
+    | guion name igual bm_inode {rep_->setName($4);}
+    | guion name igual bm_block {rep_->setName($4);}
+    | guion name igual tree {rep_->setName($4);}
+    | guion name igual file {rep_->setName($4);}
+    | guion name igual sb {rep_->setName($4);}
+    | guion name igual ls {rep_->setName($4);}
 ;
 
-MKFS: mkfs MKFSPS {std::cout << delimiter << std::endl; mkfs_ = new MKFS_();}
+MKFS: mkfs MKFSPS {mkfs_->run();std::cout << delimiter << std::endl; mkfs_ = new MKFS_();}
 ;
 
 MKFSPS: MKFSP
       | MKFSPS MKFSP
 ;
 
-MKFSP: guion id igual id
-     | guion id igual cadena_esp
-     | guion type igual id
-     | guion type igual cadena_esp
+MKFSP: guion id igual id {mkfs_->id=$4;}
+     | guion id igual cadena_esp {mkfs_->id=$4;}
+     | guion type igual full {mkfs_->type=$4;}
+     | guion type igual fast {mkfs_->type=$4;}
 ;
 
 
 PAUSE:pause_{std::string Entrada; std::cout<<"Modo Pausa..."<<std::endl;std::cin>>Entrada;}
 ;
+
+LOGIN: login LOGINPS {login_->run();std::cout << delimiter << std::endl;login_ = new LOGIN_();}
+;
+
+LOGINPS:  LOGINP LOGINPS
+        | LOGINP
+;
+
+LOGINP: guion usr igual id {login_->setUsr($4);}
+      | guion usr igual cadena_esp {login_->setUsr($4);}
+      | guion pwd igual pass {login_->setPass($4);}
+      | guion pwd igual numero {login_->setPass($4);}
+      | guion pwd igual id {login_->setPass($4);}
+      | guion pwd igual cadena_esp {login_->setPass($4);}
+      | guion id igual id {login_->setId($4);}
+      | guion id igual cadena_esp {login_->setId($4);}
+;
+
+LOGOUT: logout {logout_->run();std::cout << delimiter << std::endl;}
+;
+
+MKGRP: mkgrp guion name igual id {mkgrp_->setName($5);mkgrp_->run();std::cout << delimiter << std::endl;mkgrp_ = new MKGRP_();}
+     | mkgrp guion name igual cadena_esp {mkgrp_->setName($5);mkgrp_->run();std::cout << delimiter << std::endl;mkgrp_ = new MKGRP_();}
+;
+
+RMGRP: rmgrp guion name igual id{rmgrp_->setName($5); rmgrp_->run(); std::cout << delimiter << std::endl; rmgrp_ = new RMGRP_();}
+     | rmgrp guion name igual cadena_esp {rmgrp_->setName($5); rmgrp_->run(); std::cout << delimiter << std::endl; rmgrp_ = new RMGRP_();}
+;
+
+MKUSR: mkusr MKUSRPS
+;
+
+MKUSRPS: MKUSRP MKUSRPS
+       | MKUSRP
+;
+
+MKUSRP: guion usr igual id
+      | guion usr igual cadena_esp
+      | guion pwd igual id
+      | guion pwd igual cadena_esp
+      | guion pwd igual pass
+      | guion pwd igual numero
+      | guion grp igual id
+      | guion grp igual cadena_esp
+;
+
 %%
 
 void yyerror(const char *s)

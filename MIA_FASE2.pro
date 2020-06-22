@@ -13,11 +13,16 @@ DISTFILES += \
 
 HEADERS += \
     FDISK.h \
+    LOGIN.h \
+    LOGOUT.h \
     MKDISK.h \
     MKFS.h \
+    MKGRP.h \
+    MKUSR.h \
     MOUNT.h \
     REP.h \
     RMDISK.h \
+    RMGRP.h \
     UNMOUNT.h \
     parser.h \
     scanner.h \

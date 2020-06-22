@@ -20,6 +20,7 @@ numero_negativo [-][0-9]+
 string (\"(\\.|[^\\"])*\")
 ruta "/"("/"|"-"|"_"|"."|[a-zA-Z0-9])+
 id ([a-zA-Z])([a-zA-Z]|[0-9]|"_")*
+pass (numero|ruta)+;
 
 %% // <<<<<<<<<<<<<<<<<<< [Reglas lexicas] >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><
 ('\s'|'\r'|'\t')+ {};
@@ -70,11 +71,20 @@ id ([a-zA-Z])([a-zA-Z]|[0-9]|"_")*
 "cp" {yylval.STRING = strdup(yytext); return (cp);}
 "dest" {yylval.STRING = strdup(yytext); return (dest);}
 "mv" {yylval.STRING = strdup(yytext); return (mv);}
+"ls" {yylval.STRING = strdup(yytext); return (ls);}
+"sb" {yylval.STRING = strdup(yytext); return (sb);}
 "find" {yylval.STRING = strdup(yytext); return (find);}
 "chown" {yylval.STRING = strdup(yytext); return (chown_);}
 "r" {yylval.STRING = strdup(yytext); return (r);}
+"ruta" {yylval.STRING = strdup(yytext); return (route);}
 "chgrp" {yylval.STRING = strdup(yytext); return (chgrp);}
 "pause" {yylval.STRING = strdup(yytext); return (pause_);}
+"inode" {yylval.STRING = strdup(yytext); return (inode);}
+"journaling" {yylval.STRING = strdup(yytext); return (journaling);}
+"block" {yylval.STRING = strdup(yytext); return (block);}
+"bm_inode" {yylval.STRING = strdup(yytext); return (bm_inode);}
+"bm_block" {yylval.STRING = strdup(yytext); return (bm_block);}
+"tree" {yylval.STRING = strdup(yytext); return (tree);}
 "m"  {yylval.STRING = strdup(yytext);return (m);};
 "bf" {yylval.STRING = strdup(yytext);return (bf);};
 "ff" {yylval.STRING = strdup(yytext);return (ff);};
@@ -84,6 +94,7 @@ id ([a-zA-Z])([a-zA-Z]|[0-9]|"_")*
 "e" {yylval.STRING = strdup(yytext);return (e);};
 "l" {yylval.STRING = strdup(yytext);return (l);};
 "=" {yylval.STRING = strdup(yytext);return (igual);};
+{pass} {yylval.STRING = strdup(yytext);return (pass);};
 {string} {yylval.STRING = strdup(yytext);return (cadena_esp);};
 {ruta} {yylval.STRING = strdup(yytext);return(ruta);};
 {id} {yylval.STRING = strdup(yytext);return(id);};
